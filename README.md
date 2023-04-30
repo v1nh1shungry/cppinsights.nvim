@@ -2,6 +2,10 @@
 
 Integrate [C++ Insights](https://cppinsights.io/) into your favourite editor using the [C++ Insights](https://cppinsights.io/)'s API.
 
+# Screenshots
+
+![](https://user-images.githubusercontent.com/98312435/235350143-ed00ae6d-1525-4144-8df2-360a73813a6a.gif)
+
 # Installation
 
 [lazy.nvim](https://github.com/folke/lazy.nvim)
