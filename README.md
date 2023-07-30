@@ -2,11 +2,9 @@
 
 Integrate [C++ Insights](https://cppinsights.io/) into your favourite editor using the [C++ Insights](https://cppinsights.io/)'s API.
 
-# Screenshots
+<img src="https://user-images.githubusercontent.com/98312435/235350143-ed00ae6d-1525-4144-8df2-360a73813a6a.gif" />
 
-![](https://user-images.githubusercontent.com/98312435/235350143-ed00ae6d-1525-4144-8df2-360a73813a6a.gif)
-
-# Installation
+## 📦 Installation
 
 [lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -19,9 +17,10 @@ require('lazy').setup {
 }
 ```
 
-# Default Configuration
+## ⚙️  Configuration
 
 ```lua
+-- default
 require('cppinsights').setup {
   standard = 'cpp17',
   alternative_styles = {
@@ -39,6 +38,6 @@ require('cppinsights').setup {
 }
 ```
 
-# Usage
+## 🚀 Usage
 
 `CppInsights`: Send the content of the current buffer to [C++ Insights](https://cppinsights.io/), and put the result into a vertical split window if successful. Otherwise insert the diagnostics into the quickfix.
