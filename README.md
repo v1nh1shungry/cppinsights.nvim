@@ -15,7 +15,6 @@ require('lazy').setup {
   {
     'v1nh1shungry/cppinsights.nvim',
     cmd = 'CppInsights',
-    dependencies = 'nvim-lua/plenary.nvim',
   },
 }
 ```
