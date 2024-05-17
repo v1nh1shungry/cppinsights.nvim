@@ -25,8 +25,12 @@ local error = function(msg)
 end
 
 M.run = function()
+  local current_bufnr = vim.api.nvim_get_current_buf()
+  local current_winnr = vim.api.nvim_get_current_win()
+  local current_filename = vim.fn.expand('%')
+
   local request = {}
-  local buf_contents = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local buf_contents = vim.api.nvim_buf_get_lines(current_bufnr, 0, -1, false)
   request.code = table.concat(buf_contents, '\n')
   request.insightsOptions = { options.standard }
   for key, enabled in pairs(options.alternative_styles) do
@@ -39,43 +43,48 @@ M.run = function()
       request.insightsOptions[#request.insightsOptions + 1] = key
     end
   end
-  vim.system({
-    'curl',
-    'https://cppinsights.io/api/v1/transform',
-    '-X',
-    'POST',
-    '-d',
-    vim.json.encode(request),
-    '--header',
-    'Content-Type: application/json',
-  }, {}, vim.schedule_wrap(function(res)
-    if res.code ~= 0 then
-      error("Can't connect to https://cppinsights.io:\n" .. res.stderr)
-      return
-    end
-    res = vim.json.decode(res.stdout)
-    if res.returncode == 1 then
-      local diagnostics = vim.fn.split(res.stderr, '\n')
-      error(res.stdout)
-      vim.fn.setqflist({}, ' ', { title = 'C++ Insights' })
-      vim.fn.setqflist({}, 'a', { lines = diagnostics })
-      vim.cmd 'bot 10 copen'
-      vim.cmd 'wincmd p'
-    else
-      local output = vim.split(res.stdout, '\n')
-      local buf = vim.api.nvim_create_buf(false, true)
-      local bo = vim.bo[buf]
-      bo.ft = 'cpp'
-      bo.bufhidden = 'wipe'
-      bo.modifiable = true
-      vim.api.nvim_buf_set_lines(buf, 0, -1, false, output)
-      bo.modifiable = false
-      vim.api.nvim_buf_set_name(buf, 'C++ Insights')
-      vim.cmd.vsplit()
-      vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), buf)
-      vim.cmd 'wincmd p'
-    end
-  end))
+  vim.system(
+    {
+      'curl',
+      'https://cppinsights.io/api/v1/transform',
+      '-X',
+      'POST',
+      '-d',
+      vim.json.encode(request),
+      '--header',
+      'Content-Type: application/json',
+    },
+    { text = true },
+    vim.schedule_wrap(function(res)
+      if res.code ~= 0 then
+        error('Faild to connect to https://cppinsights.io:\n' .. res.stderr)
+        return
+      end
+      res = vim.json.decode(res.stdout)
+      if res.returncode == 1 then
+        local diagnostics = vim.fn.split(res.stderr:gsub('/home/insights/insights%.cpp', current_filename), '\n')
+        error(res.stdout)
+        vim.fn.setqflist({}, ' ', { title = 'C++ Insights' })
+        vim.fn.setqflist({}, 'a', { lines = diagnostics })
+        vim.cmd('bot 10 copen')
+        vim.cmd('wincmd p')
+      else
+        local opts = vim.b[current_bufnr].cppinsights or {}
+        local output = vim.split(res.stdout, '\n')
+        if opts.buf == nil or not vim.api.nvim_buf_is_valid(opts.buf) then
+          opts.buf = vim.api.nvim_create_buf(false, true)
+        end
+        if opts.win == nil or not vim.api.nvim_win_is_valid(opts.win) then
+          opts.win = vim.api.nvim_open_win(opts.buf, false, { split = 'right', win = current_winnr })
+        end
+        vim.bo[opts.buf].modifiable = true
+        vim.api.nvim_buf_set_lines(opts.buf, 0, -1, false, output)
+        vim.bo[opts.buf].filetype = 'cpp'
+        vim.bo[opts.buf].modifiable = false
+        vim.b[current_bufnr].cppinsights = opts
+      end
+    end)
+  )
 end
 
 return M
