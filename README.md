@@ -29,11 +29,14 @@ require('cppinsights').setup {
   },
   more_transformations = {
     ['all-implicit-casts'] = false,
+    ['show-all-callexpr-template-parameters'] = false,
     ['use-libcpp'] = false,
     ['edu-show-initlist'] = false,
     ['edu-show-noexcept'] = false,
     ['edu-show-padding'] = false,
     ['edu-show-coroutines'] = false,
+    ['edu-show-cfront'] = false,
+    ['edu-show-lifetime'] = false,
   },
 }
 ```
