@@ -20,8 +20,8 @@ M.setup = function(opt)
   options = vim.tbl_deep_extend('force', options, opt)
 end
 
-local error = function(msg)
-  vim.notify(msg, vim.log.levels.ERROR, { title = 'cppinsights.nvim' })
+local notify = function(msg, level)
+  vim.notify(msg, level, { title = 'cppinsights.nvim' })
 end
 
 M.run = function()
@@ -43,6 +43,7 @@ M.run = function()
       request.insightsOptions[#request.insightsOptions + 1] = key
     end
   end
+  notify('Connecting to cppinsights.io ...')
   vim.system(
     {
       'curl',
@@ -57,13 +58,13 @@ M.run = function()
     { text = true },
     vim.schedule_wrap(function(res)
       if res.code ~= 0 then
-        error('Faild to connect to https://cppinsights.io:\n' .. res.stderr)
+        notify('Faild to connect to https://cppinsights.io:\n' .. res.stderr, vim.log.levels.ERROR)
         return
       end
       res = vim.json.decode(res.stdout)
       if res.returncode == 1 then
         local diagnostics = vim.fn.split(res.stderr:gsub('/home/insights/insights%.cpp', current_filename), '\n')
-        error(res.stdout)
+        notify(res.stdout, vim.log.levels.ERROR)
         vim.fn.setqflist({}, ' ', { title = 'C++ Insights' })
         vim.fn.setqflist({}, 'a', { lines = diagnostics })
         vim.cmd('bot 10 copen')
@@ -73,13 +74,14 @@ M.run = function()
         local output = vim.split(res.stdout, '\n')
         if opts.buf == nil or not vim.api.nvim_buf_is_valid(opts.buf) then
           opts.buf = vim.api.nvim_create_buf(false, true)
+          vim.bo[opts.buf].filetype = 'cpp'
+          vim.bo[opts.buf].buftype = ''
         end
         if opts.win == nil or not vim.api.nvim_win_is_valid(opts.win) then
           opts.win = vim.api.nvim_open_win(opts.buf, false, { split = 'right', win = current_winnr })
         end
         vim.bo[opts.buf].modifiable = true
         vim.api.nvim_buf_set_lines(opts.buf, 0, -1, false, output)
-        vim.bo[opts.buf].filetype = 'cpp'
         vim.bo[opts.buf].modifiable = false
         vim.b[current_bufnr].cppinsights = opts
       end
