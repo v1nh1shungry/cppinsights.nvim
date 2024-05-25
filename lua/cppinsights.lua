@@ -78,7 +78,6 @@ M.run = function()
         if opts.buf == nil or not vim.api.nvim_buf_is_valid(opts.buf) then
           opts.buf = vim.api.nvim_create_buf(false, true)
           vim.bo[opts.buf].filetype = 'cpp'
-          vim.bo[opts.buf].buftype = ''
         end
         if opts.win == nil or not vim.api.nvim_win_is_valid(opts.win) then
           opts.win = vim.api.nvim_open_win(opts.buf, false, { split = 'right', win = current_winnr })
