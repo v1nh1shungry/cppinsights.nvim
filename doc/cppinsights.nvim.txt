@@ -1,4 +1,4 @@
-*cppinsights.nvim.txt*       For NVIM >= 0.10.0       Last change: 2024 May 24
+*cppinsights.nvim.txt*       For NVIM >= 0.10.0       Last change: 2024 May 25
 
 ==============================================================================
 Table of Contents                         *cppinsights.nvim-table-of-contents*
